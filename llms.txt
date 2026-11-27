@@ -1,0 +1,22 @@
+# CYBER MAIL — Unlimited Temp Mail & Disposable Gmail 🚀
+
+> ⚡ **CYBER MAIL** (`https://cyber-mail2026.netlify.app/`) is a free, instant, unlimited temporary email & disposable Gmail web application with real-time OTP & verification link detection.
+> 👑 **Developer by Rayhan (SK RAYHAN BOSS)** 💻
+
+## 🌐 Official Website & Preview
+- **Live App:** https://cyber-mail2026.netlify.app/
+- **Banner / Preview Image:** https://files.catbox.moe/xghf6r.webp
+- **Developer:** Rayhan (SK RAYHAN BOSS)
+
+## ✨ Key Features & Capabilities
+- 📧 **Unlimited Temp Mail & Disposable Gmail:** Generate unlimited temporary email addresses instantly with one click—no registration or password required.
+- 🔑 **Real-Time OTP & Verification Link Inbox:** Automatically detects and highlights OTP codes and confirmation links as soon as emails arrive.
+- ⏱️ **Flexible Session Timer:** Choose from 5 minutes, 10 minutes, 15 minutes, 30 minutes, 1 hour, or unlimited session duration.
+- 🛡️ **Privacy & Spam Protection:** Keep your personal Gmail and primary inbox safe from spam, trackers, and unwanted newsletters.
+- 🎨 **Matrix Cyber UI:** Futuristic dark-mode interface with customizable neon colors, themes, and background audio.
+
+## 🔍 Popular Search Topics
+- Cyber Mail / Cyber Mail 2026
+- Unlimited Gmail / Free Temp Gmail / Disposable Email
+- Instant OTP Temp Mail / 10 Minute Mail
+- Developer by Rayhan / SK RAYHAN BOSS

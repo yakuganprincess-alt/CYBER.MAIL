@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cyber-mail2026.netlify.app/sitemap.xml
